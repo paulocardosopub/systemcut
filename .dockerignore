@@ -1,0 +1,13 @@
+.git
+.next
+node_modules
+storage
+prisma/dev.db
+prisma/dev.db-journal
+.env
+.env.*
+!.env.example
+*.log
+.next-dev.*.log
+.DS_Store
+Thumbs.db

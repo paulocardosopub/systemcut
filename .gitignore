@@ -19,6 +19,7 @@ storage/thumbnails/
 storage/processed/
 storage/exports/
 storage/tmp/
+storage/db/
 storage/**/*.mp4
 storage/**/*.m4a
 storage/**/*.jpg

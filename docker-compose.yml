@@ -1,0 +1,24 @@
+services:
+  app:
+    build: .
+    container_name: system-smart-cut
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      APP_URL: ${APP_URL:-http://localhost:3000}
+      HOSTNAME: 0.0.0.0
+      PORT: 3000
+      AUTH_SECRET: ${AUTH_SECRET:?AUTH_SECRET is required}
+      DATABASE_URL: ${DATABASE_URL:-file:/app/storage/db/prod.db}
+      STORAGE_DIR: ${STORAGE_DIR:-/app/storage}
+      MAX_UPLOAD_MB: ${MAX_UPLOAD_MB:-2048}
+      AI_PROVIDER: ${AI_PROVIDER:-mock}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      FFMPEG_PATH: ${FFMPEG_PATH:-ffmpeg}
+      FFPROBE_PATH: ${FFPROBE_PATH:-ffprobe}
+    volumes:
+      - system-smart-cut-storage:/app/storage
+
+volumes:
+  system-smart-cut-storage:

@@ -69,6 +69,16 @@ Copie `.env.example` para `.env` e ajuste se necessario.
 
 O MVP usa `AI_PROVIDER=mock` por padrao, entao nao precisa de chave de IA real para funcionar.
 
+## Deploy em servidor proprio
+
+O projeto ja inclui `Dockerfile` e `docker-compose.yml` para rodar em VPS com dados persistentes.
+
+Guia completo:
+
+```text
+docs/deploy-vps.md
+```
+
 ## Observacoes
 
 O comando `npm run db:push` usa `scripts/init-db.mjs`, porque nesta maquina o motor nativo de `prisma db push` retornou erro generico. O Prisma continua sendo usado como ORM em runtime, e o script cria as mesmas tabelas descritas em `prisma/schema.prisma`.
