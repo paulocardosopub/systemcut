@@ -13,21 +13,31 @@ out/
 !.env.example
 
 # local storage
+storage/audio/
 storage/uploads/
+storage/thumbnails/
 storage/processed/
 storage/exports/
 storage/tmp/
+storage/**/*.mp4
+storage/**/*.m4a
+storage/**/*.jpg
+
+# local database
+prisma/dev.db
+prisma/dev.db-journal
 
 # logs
 *.log
+.next-dev.*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
+.test-cookies.txt
 
 # OS / editor
 .DS_Store
 Thumbs.db
 .vscode/
 .idea/
-

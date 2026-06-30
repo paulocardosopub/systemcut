@@ -1,0 +1,114 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String         @id @default(cuid())
+  name         String
+  email        String         @unique
+  passwordHash String
+  createdAt    DateTime       @default(now())
+  projects     VideoProject[]
+}
+
+model VideoProject {
+  id               String              @id @default(cuid())
+  userId           String
+  user             User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title            String
+  originalFileName String
+  originalFilePath String
+  thumbnailPath    String?
+  audioPath        String?
+  exportPath       String?
+  duration         Float?
+  width            Int?
+  height           Int?
+  status           String              @default("Enviado")
+  contentType      String              @default("Outro")
+  objective        String              @default("Melhores momentos")
+  desiredDuration  String              @default("1 minuto")
+  errorMessage     String?
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
+  transcript       TranscriptSegment[]
+  cuts             SmartCut[]
+  captions         Caption[]
+  exportJobs       ExportJob[]
+
+  @@index([userId])
+  @@index([status])
+}
+
+model TranscriptSegment {
+  id         String       @id @default(cuid())
+  projectId  String
+  project    VideoProject @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  startTime  Float
+  endTime    Float
+  text       String
+  confidence Float        @default(0.85)
+
+  @@index([projectId])
+}
+
+model SmartCut {
+  id                String       @id @default(cuid())
+  projectId         String
+  project           VideoProject @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  startTime         Float
+  endTime           Float
+  title             String
+  description       String
+  reason            String
+  score             Int
+  tags              String       @default("[]")
+  transcriptExcerpt String       @default("")
+  isSelected        Boolean      @default(true)
+  orderIndex        Int          @default(0)
+  createdBy         String       @default("ai")
+  createdAt         DateTime     @default(now())
+  captions          Caption[]
+
+  @@index([projectId])
+}
+
+model Caption {
+  id        String       @id @default(cuid())
+  projectId String
+  project   VideoProject @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  cutId     String?
+  cut       SmartCut?    @relation(fields: [cutId], references: [id], onDelete: SetNull)
+  startTime Float
+  endTime   Float
+  text      String
+  style     String       @default("Clean")
+  position  String       @default("Inferior")
+
+  @@index([projectId])
+  @@index([cutId])
+}
+
+model ExportJob {
+  id           String        @id @default(cuid())
+  projectId    String
+  project      VideoProject  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  status       String        @default("Criado")
+  format       String        @default("Original")
+  aspectRatio  String        @default("Original")
+  resolution   String        @default("Original")
+  quality      String        @default("Alta qualidade")
+  outputPath   String?
+  progress     Int           @default(0)
+  errorMessage  String?
+  createdAt    DateTime      @default(now())
+  completedAt  DateTime?
+
+  @@index([projectId])
+  @@index([status])
+}
