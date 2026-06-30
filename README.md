@@ -7,6 +7,7 @@ MVP de uma plataforma web para transformar videos longos em cortes inteligentes 
 - Cadastro, login, sessao persistente e isolamento por usuario.
 - Dashboard com videos recentes, status e atalhos.
 - Upload de videos em stream para `storage/uploads`.
+- Importacao por link publico do YouTube, TikTok e Instagram na versao com servidor Node.
 - Processamento com FFmpeg embutido via dependencias do projeto:
   - leitura de metadados;
   - thumbnail;
@@ -62,6 +63,14 @@ http://192.168.15.22:3000
 - `npm run worker`: reprocessa projetos pendentes/erro.
 - `npm run build`: gera Prisma Client e valida o build.
 - `npm run start`: roda o build de producao.
+
+## Importacao por link
+
+Links do YouTube, TikTok e Instagram funcionam na versao com servidor Node (`npm run dev`,
+`npm run start` ou Docker). O GitHub Pages publica apenas HTML/CSS/JS estatico e nao consegue
+baixar esses videos sozinho.
+
+O limite de download por link usa `MAX_IMPORT_MB` no `.env`.
 
 ## Variaveis de ambiente
 

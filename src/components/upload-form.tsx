@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { ChangeEvent, FormEvent, useRef, useState } from "react";
-import { FileVideo, Loader2, UploadCloud } from "lucide-react";
+import { FileVideo, Link as LinkIcon, Loader2, UploadCloud } from "lucide-react";
 import { formatBytes } from "@/lib/format";
 
 const contentTypes = ["Gameplay", "Live", "Podcast", "Aula", "Vlog", "Review", "Tutorial", "Outro"];
@@ -25,6 +25,7 @@ export function UploadForm() {
   const [dragging, setDragging] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [videoUrl, setVideoUrl] = useState("");
 
   function chooseFile(nextFile?: File | null) {
     setError("");
@@ -47,16 +48,52 @@ export function UploadForm() {
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!file) {
-      setError("Selecione um video para enviar.");
-      return;
-    }
 
     setLoading(true);
     setProgress(0);
     setError("");
 
     const form = new FormData(event.currentTarget);
+    const url = videoUrl.trim();
+
+    if (url && !file) {
+      try {
+        const response = await fetch("/api/projects/import-url", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            url,
+            title: String(form.get("title") || ""),
+            contentType: String(form.get("contentType") || ""),
+            objective: String(form.get("objective") || ""),
+            desiredDuration: String(form.get("desiredDuration") || "")
+          })
+        });
+        const data = await response.json();
+
+        if (!response.ok) {
+          setError(data.error || "Nao foi possivel importar o link.");
+          return;
+        }
+
+        router.push(`/editor/${data.project.id}`);
+        router.refresh();
+      } catch {
+        setError("Falha de rede durante a importacao do link.");
+      } finally {
+        setLoading(false);
+      }
+      return;
+    }
+
+    if (!file) {
+      setLoading(false);
+      setError("Selecione um video ou cole um link do YouTube, TikTok ou Instagram.");
+      return;
+    }
+
     form.set("video", file);
 
     const xhr = new XMLHttpRequest();
@@ -136,7 +173,9 @@ export function UploadForm() {
             <div className="h-2 overflow-hidden rounded-full bg-white/10">
               <div className="h-full rounded-full bg-signal-teal transition-all" style={{ width: `${progress}%` }} />
             </div>
-            <p className="mt-2 text-sm text-white/[0.55]">{progress}% enviado</p>
+            <p className="mt-2 text-sm text-white/[0.55]">
+              {file ? `${progress}% enviado` : "Importando link pelo servidor..."}
+            </p>
           </div>
         )}
       </section>
@@ -151,6 +190,25 @@ export function UploadForm() {
               className="focus-ring h-11 w-full rounded-md border border-white/10 bg-white/5 px-3 text-white outline-none"
               placeholder="Ex: Live de gameplay - junho"
             />
+          </label>
+          <label className="block">
+            <span className="mb-2 block text-sm text-white/70">Link do YouTube, TikTok ou Instagram</span>
+            <div className="flex items-center gap-2 rounded-md border border-white/10 bg-white/5 px-3">
+              <LinkIcon size={17} className="text-signal-teal" />
+              <input
+                type="url"
+                value={videoUrl}
+                onChange={(event) => {
+                  setVideoUrl(event.target.value);
+                  setError("");
+                }}
+                className="h-11 min-w-0 flex-1 bg-transparent text-white outline-none"
+                placeholder="https://www.youtube.com/watch?v=..."
+              />
+            </div>
+            <span className="mt-2 block text-xs leading-5 text-white/45">
+              Use apenas videos publicos que voce tem direito de baixar/processar. Para link, deixe o arquivo vazio.
+            </span>
           </label>
           <label className="block">
             <span className="mb-2 block text-sm text-white/70">Tipo de conteudo</span>
@@ -190,7 +248,7 @@ export function UploadForm() {
           className="focus-ring mt-6 inline-flex h-12 w-full items-center justify-center gap-2 rounded-md bg-signal-teal font-semibold text-graphite-950 transition hover:brightness-110 disabled:opacity-70"
         >
           {loading ? <Loader2 size={18} className="animate-spin" /> : <UploadCloud size={18} />}
-          Enviar e analisar
+          {videoUrl.trim() && !file ? "Importar link e analisar" : "Enviar e analisar"}
         </button>
       </section>
     </form>

@@ -25,6 +25,7 @@ APP_URL=https://seu-dominio.com
 AUTH_SECRET=troque-por-uma-chave-grande
 DATABASE_URL=file:/app/storage/db/prod.db
 STORAGE_DIR=/app/storage
+MAX_IMPORT_MB=2048
 AI_PROVIDER=mock
 ```
 
@@ -50,6 +51,15 @@ docker compose up -d --build
 ## Dados persistentes
 
 Uploads, thumbnails, audio, exportacoes e o SQLite de producao ficam no volume Docker `system-smart-cut-storage`.
+
+## Links do YouTube, TikTok e Instagram
+
+A importacao por link funciona nesta versao com servidor proprio. O backend usa `yt-dlp` para baixar
+videos publicos do YouTube, TikTok e Instagram, salva em `storage/uploads` e processa o projeto igual
+ao upload comum.
+
+O GitHub Pages (`paulocardosopub.github.io/systemcut`) e apenas estatico; ele nao consegue baixar
+videos dessas plataformas sem este servidor rodando.
 
 ## HTTPS
 
