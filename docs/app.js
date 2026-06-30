@@ -38,6 +38,7 @@ function bindElements() {
     "videoUrlInput",
     "importUrlButton",
     "registerSocialLinkButton",
+    "copyVideoUrlButton",
     "urlImportStatus",
     "projectTitleInput",
     "contentTypeInput",
@@ -89,6 +90,7 @@ function bindEvents() {
   els.createProjectButton.addEventListener("click", createProjectFromUpload);
   els.importUrlButton.addEventListener("click", importVideoUrl);
   els.registerSocialLinkButton.addEventListener("click", registerSocialLink);
+  els.copyVideoUrlButton.addEventListener("click", copyVideoUrl);
   els.createManualCutButton.addEventListener("click", createManualCut);
   els.exportVideoButton.addEventListener("click", exportSelectedCuts);
   els.downloadWavButton.addEventListener("click", () => downloadAudio("wav"));
@@ -238,7 +240,7 @@ async function importVideoUrl() {
 
   if (isSocialPlatformUrl(rawUrl)) {
     els.urlImportStatus.textContent =
-      "Links de YouTube, TikTok e Instagram precisam de backend/proxy autorizado. No GitHub Pages, use um link direto .mp4/.webm ou envie o arquivo.";
+      "Links de YouTube, TikTok e Instagram precisam do app com servidor. Nesta pagina, copie o link, use uma ferramenta externa e envie o MP4/WEBM baixado.";
     return;
   }
 
@@ -309,7 +311,24 @@ function registerSocialLink() {
   saveProjects();
   renderAll();
   els.urlImportStatus.textContent =
-    "Link social salvo. Para baixar e editar automaticamente, publique a versao com backend/proxy autorizado.";
+    "Link social salvo. Para editar nesta pagina, baixe o MP4/WEBM em uma ferramenta externa e envie o arquivo.";
+}
+
+async function copyVideoUrl() {
+  const rawUrl = els.videoUrlInput.value.trim();
+
+  if (!rawUrl) {
+    els.urlImportStatus.textContent = "Cole um link antes de copiar.";
+    return;
+  }
+
+  try {
+    await navigator.clipboard.writeText(rawUrl);
+    els.urlImportStatus.textContent = "Link copiado. Abra a ferramenta externa, baixe o video e envie o arquivo aqui.";
+  } catch {
+    els.videoUrlInput.select();
+    els.urlImportStatus.textContent = "Nao consegui copiar automaticamente. Use Ctrl+C no link selecionado.";
+  }
 }
 
 async function openLastProject() {

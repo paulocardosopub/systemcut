@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { ChangeEvent, FormEvent, useRef, useState } from "react";
-import { FileVideo, Link as LinkIcon, Loader2, UploadCloud } from "lucide-react";
+import { Copy, ExternalLink, FileVideo, Link as LinkIcon, Loader2, UploadCloud } from "lucide-react";
 import { formatBytes } from "@/lib/format";
 
 const contentTypes = ["Gameplay", "Live", "Podcast", "Aula", "Vlog", "Review", "Tutorial", "Outro"];
@@ -16,6 +16,10 @@ const objectives = [
   "Clipe viral"
 ];
 const durations = ["30 segundos", "1 minuto", "3 minutos", "5 minutos", "10 minutos", "Personalizado"];
+const externalDownloaders = [
+  { name: "YTDOWN", href: "https://ytdown.org/?lang=en" },
+  { name: "Cobalt", href: "https://cobalt.canine.tools/" }
+];
 
 export function UploadForm() {
   const router = useRouter();
@@ -26,6 +30,7 @@ export function UploadForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [videoUrl, setVideoUrl] = useState("");
+  const [copied, setCopied] = useState(false);
 
   function chooseFile(nextFile?: File | null) {
     setError("");
@@ -44,6 +49,24 @@ export function UploadForm() {
 
   function onFileChange(event: ChangeEvent<HTMLInputElement>) {
     chooseFile(event.target.files?.[0]);
+  }
+
+  async function copyVideoUrl() {
+    const url = videoUrl.trim();
+
+    if (!url) {
+      setError("Cole o link antes de copiar.");
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      setError("");
+      window.setTimeout(() => setCopied(false), 1800);
+    } catch {
+      setError("Nao foi possivel copiar automaticamente. Selecione e copie o link manualmente.");
+    }
   }
 
   async function submit(event: FormEvent<HTMLFormElement>) {
@@ -210,6 +233,34 @@ export function UploadForm() {
               Use apenas videos publicos que voce tem direito de baixar/processar. Para link, deixe o arquivo vazio.
             </span>
           </label>
+          <div className="rounded-md border border-white/10 bg-white/[0.035] p-3">
+            <p className="text-sm leading-6 text-white/55">
+              Se o importador interno falhar, copie o link, abra uma ferramenta externa, baixe o video em MP4/WEBM e volte
+              para selecionar o arquivo.
+            </p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={copyVideoUrl}
+                className="focus-ring inline-flex h-10 items-center justify-center gap-2 rounded-md border border-white/10 px-3 text-sm font-medium text-white transition hover:border-signal-teal/45"
+              >
+                <Copy size={16} />
+                {copied ? "Copiado" : "Copiar link"}
+              </button>
+              {externalDownloaders.map((downloader) => (
+                <a
+                  key={downloader.name}
+                  href={downloader.href}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="focus-ring inline-flex h-10 items-center justify-center gap-2 rounded-md border border-white/10 px-3 text-sm font-medium text-white transition hover:border-signal-teal/45"
+                >
+                  <ExternalLink size={16} />
+                  Abrir {downloader.name}
+                </a>
+              ))}
+            </div>
+          </div>
           <label className="block">
             <span className="mb-2 block text-sm text-white/70">Tipo de conteudo</span>
             <select name="contentType" className="focus-ring h-11 w-full rounded-md border border-white/10 bg-graphite-850 px-3 text-white">
